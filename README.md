@@ -1,9 +1,4 @@
 # HP-Omen-15-macOS
-
-## Table of Contents
-
-[TOC]
-
 ## Overview
 
 ### Specifications
