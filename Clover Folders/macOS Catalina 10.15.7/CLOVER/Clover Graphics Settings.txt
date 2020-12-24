@@ -1,0 +1,8 @@
+Clover Graphics Settings
+
+For KabyLake (Intel i7-7xxxxx) with HD 630:
+
+
+Devices -> intelGFX: 0x59168086
+
+Graphics -> ig-platform-id: 0x591b0000
