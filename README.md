@@ -1,4 +1,5 @@
 # HP-Omen-15-macOS
+
 ## Overview
 
 ### Specifications
@@ -17,7 +18,7 @@ Drives: Plextor M8Pe(G) 256GB NVMe, Hitachi HGST Travelstar 1TB HDD
 
 ### What works
 
-- macOS Catalina (10.15.1, 10.15); Mojave (10.14.6); High Sierra (10.13.6)
+- macOS Catalina (10.15.17 and all previous versions); Mojave (10.14.6); High Sierra (10.13.6)
 - Intel HD Graphics 630
 - Plextor M8Pe(G) 256GB NVMe drive*
 - USB3 and USB2 ports
@@ -26,7 +27,8 @@ Drives: Plextor M8Pe(G) 256GB NVMe, Hitachi HGST Travelstar 1TB HDD
 - Fix for mic switching when plugging/unplugging a headset
 - Volume function keys
 - Realtek 8111 PCIe Ethernet
-- USB tethering from Android phone for Wifi service
+- Intel Wi-Fi
+- USB tethering from Android phone for Wi-Fi service
 - Synaptics Clickpad (with working Trackpad gestures)
 - Realtek RTS522A PCIe Card Reader (a little buggy but works okay)
 - Bluetooth
@@ -50,11 +52,10 @@ Drives: Plextor M8Pe(G) 256GB NVMe, Hitachi HGST Travelstar 1TB HDD
 
 - Nvidia GeForce GTX 1050 “switchable” graphics (currently not supported*)
 - HDMI port (currently not supported*)
-- Intel Wi-Fi (currently not supported**)
+
+
 
 \* This machine uses a “switchable” dual GPU (Intel iGPU/Nvidia dGPU) which is supported in Windows and Linux. Unfortunately there is no support in macOS. Even with working NVidia Web drivers which are currently available for High Sierra 10.13.6 (not Mojave or Catalina), the NVidia dGPU still can’t be used due to the switching set up which is not supported. The HTML port is routed through the NVidia GPU (stated in the HP Omen 15 Maintenance manual and confirmed in Windows) which means this is also not supported. Following this guide will result in the dGPU being switched off in macOS, thus saving power and allowing sleep/wake. This won’t affect operation in Windows or Linux.
-
-** Intel Wi-Fi devices are not currently supported in macOS. For quick and easy Wi-Fi access, you can use USB phone tethering (see below) or a compatible USB Wi-Fi device. For a more permanent solution, you can replace the Intel Wi-Fi device with a compatible Wi-Fi device (not expensive). For ethernet network, the Realtek ethernet device works fine.
 
 
 
@@ -162,7 +163,10 @@ The following Kext Files (latest versions recommended) need to be downloaded and
 - RealtekRTL8111.kext (ethernet network)
 - USBInjectAll.kext (USB)
 - VoodooPS2Controller.kext (mouse and touchpad)
+- VoodooInput.kext (mouse and touchpad)
+- AppleALC.kext (audio)
 - WhateverGreen.kext (video)
+- itlwm.kext (Intel Wi-Fi)
 
 
 
@@ -183,9 +187,13 @@ All the Clover drivers should already be present, but check that they are in the
 
 macOS installation doesn't need Internet access during installation. To have network access on the target machine, you can do one of the following:
 
-- Use ethernet. The RealtekRTL8111.kext (see above) will allow ethernet network during and after macOS installation.
-- Use USB Wi-Fi tethering. The ***HoRNDIS\*** app allows USB tethering from an Android phone for WiFi access, so you can download this app and have it ready to install on the target machine after installation. https://joshuawise.com/horndis#available_versions . If you need Internet access during macOS installation, you can even copy the HoRNDIS.kext file to the Clover folder /EFI/Clover/Kexts/Other and turn on USB tethering on the Android phone before starting the installation. In Catalina, the install script doesn't work, but has been modified to run. I have included it in my zip file.
-- Use a USB Wi-Fi Stick. You will need to check if it's compatible and if you need any special application/kext(s).
+- Use the Intel Wi-Fi. The itlwm.kext allows macOS to use Wi-Fi. The macOS application https://github.com/OpenIntelWireless/HeliPort can be used to connect to a Wi-Fi service. Install and run this program. Set it to run at login to have it available with automatic connection (System Preferences  > Users an Groups > Login).
+
+- Use ethernet. The RealtekRTL8111.kext (see above) allows ethernet network during and after macOS installation.
+
+- Use USB Wi-Fi tethering. The ***HoRNDIS\*** app allows USB tethering from an Android phone for WiFi access, so you can download this app and have it ready to install on the target machine after installation. https://joshuawise.com/horndis#available_versions . If you need Internet access during macOS installation, you can even copy the HoRNDIS.kext file to the Clover folder /EFI/Clover/Kexts/Other and turn on USB tethering on the Android phone before starting the installation. In Catalina, the install script doesn't work, but has been modified to run. I have included it in the these files.
+
+  
 
 
 
@@ -253,7 +261,7 @@ See section above concerning network access.
 
 ### Complete Clover Setup
 
-I use a minimalist strategy for setting up my Clover configuration: I turn off all options unless they are necessary. The following are the options used for each Clover Configurator settings section (all other options are turned off/disabled) with screen shots included. Make sure your EFI partition is mounted and open your Clover config file: /EFI/Clover/config.plist in ***Clover Configurator\***. Have only the following settings enabled (screenshots included):
+I use a minimalist strategy for setting up my Clover configuration: I turn off all options unless they are necessary. The following are the options used for each Clover Configurator settings section (all other options are turned off/disabled). Make sure your EFI partition is mounted and open your Clover config file: /EFI/Clover/config.plist in ***Clover Configurator\***. Have only the following settings enabled (screenshots included):
 
 
 
@@ -379,9 +387,12 @@ I follow the recommendation of installing all texts from Clover (/EFI/Clover/kex
 - RealtekRTL8111.kext
 - USBInjectAll.kext
 - VoodooPS2Controller.kext
+- VoodooInput.kext
 - WhateverGreen.kext
+- AppleALC.kext
+- itlwm.kext
 
-I don't put any other kexts into Clover unless needed for booting macOS. In fact, after installation you can remove all kexts from Clover if you want (I just leave them there).
+I don't put any other kexts into Clover unless needed for booting macOS. Also install all of these kexts into macOS using **Hackintool**.
 
 
 
@@ -389,7 +400,6 @@ I install all other kexts into macOS (not ***Clover\***) using ***Hackintool\***
 
 - ACPIBatterManager.kext (battery and to allow touchpad gestures)
 - Sinetek-rtsx.kext (card reader)
-- AppleALC.kext (audio)
 - CodeCommander.kext (needed for audio plug fix)
 
 
@@ -569,8 +579,6 @@ Once your audio is shown in the system report, you should get sound. Your volume
 
 
 ### DSDT Patching (for Battery Meter and Brightness Keys)
-
-
 
 I needed to patch my DSDT to add the following features:
 
