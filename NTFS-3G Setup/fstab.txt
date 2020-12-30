@@ -1,0 +1,19 @@
+﻿
+# Prevent PARAGON partition from mounting automatically
+LABEL=PARAGON   none    msdos rw,noauto
+
+# Prevent Win10Pro partition from auto mounting. LABEL= doesn't work.
+UUID=4477C3F0-D343-4C98-B888-D081BF350BF0 none ntfs ro,noauto
+
+# Prevent Work partition from auto mounting. LABEL= doesn't work.
+UUID=6F314DB2-DF99-4994-990B-06AE37EC81D0 none ntfs ro,noauto
+
+# Prevent Backup partition from auto mounting. LABEL= doesn't work.
+UUID=49225536-E455-4DA4-B1D6-44A1E7DFF4AC none ntfs ro,noauto
+
+# Prevent Data partition from auto mounting. LABEL= doesn't work.
+UUID=BA6C8162-18A7-45D7-99D0-406BA687980E none ntfs ro,noauto
+
+# Prevent Media partition from auto mounting. LABEL= doesn't work.
+"/etc/fstab" 27L, 1000C
+

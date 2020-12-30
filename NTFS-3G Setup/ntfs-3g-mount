@@ -1,0 +1,29 @@
+#!/bin/bash
+
+NAME="Data"
+UUID="BA6C8162-18A7-45D7-99D0-406BA687980E"
+DEVICEID=$(diskutil info $UUID | grep Identifier | awk '{print $3}')
+sudo /usr/local/bin/ntfs-3g /dev/$DEVICEID /Volumes/$NAME -o local -o allow_other -o auto_xattr -o auto_cache -o volname=$NAME
+
+
+NAME="Backup"
+UUID="49225536-E455-4DA4-B1D6-44A1E7DFF4AC"
+DEVICEID=$(diskutil info $UUID | grep Identifier | awk '{print $3}')
+sudo /usr/local/bin/ntfs-3g /dev/$DEVICEID /Volumes/$NAME -o local -o allow_other -o auto_xattr -o auto_cache -o volname=$NAME
+
+NAME="Temp"
+UUID="2B5833FA-6859-4F17-A86D-55FAFA0D5F53"
+DEVICEID=$(diskutil info $UUID | grep Identifier | awk '{print $3}')
+sudo /usr/local/bin/ntfs-3g /dev/$DEVICEID /Volumes/$NAME -o local -o allow_other -o auto_xattr -o auto_cache -o volname=$NAME
+
+NAME="Media"
+UUID="310272EC-77F4-4A2E-8F0E-1C40C54D1DA9"
+DEVICEID=$(diskutil info $UUID | grep Identifier | awk '{print $3}')
+sudo /usr/local/bin/ntfs-3g /dev/$DEVICEID /Volumes/$NAME -o local -o allow_other -o auto_xattr -o auto_cache -o volname=$NAME
+
+NAME="Work"
+UUID="6F314DB2-DF99-4994-990B-06AE37EC81D0"
+DEVICEID=$(diskutil info $UUID | grep Identifier | awk '{print $3}')
+sudo /usr/local/bin/ntfs-3g /dev/$DEVICEID /Volumes/$NAME -o local -o allow_other -o auto_xattr -o auto_cache -o volname=$NAME
+
+

@@ -1,0 +1,13 @@
+#!/bin/bash
+
+DAEMON_PATH=/Library/LaunchAgents/
+DAEMON_FILE=good.win.ALCPlugFix.plist
+
+echo "Restarting ALCPlugFix."
+
+launchctl unload $DAEMON_PATH$DAEMON_FILE
+launchctl load -w $DAEMON_PATH$DAEMON_FILE
+
+echo "Done!"
+
+exit 0 

@@ -18,7 +18,9 @@ Drives: Plextor M8Pe(G) 256GB NVMe, Hitachi HGST Travelstar 1TB HDD
 
 ### What works
 
-- macOS Catalina (10.15.17 and all previous versions); Mojave (10.14.6); High Sierra (10.13.6)
+- macOS Big Sur 11.1; Catalina  10.15.17 and all previous versions; Mojave 10.14.6; High Sierra 10.13.6
+- Using Clover as the bootloader
+- Using OpenCore as the bootloader
 - Intel HD Graphics 630
 - Plextor M8Pe(G) 256GB NVMe drive*
 - USB3 and USB2 ports
@@ -27,11 +29,11 @@ Drives: Plextor M8Pe(G) 256GB NVMe, Hitachi HGST Travelstar 1TB HDD
 - Fix for mic switching when plugging/unplugging a headset
 - Volume function keys
 - Realtek 8111 PCIe Ethernet
-- Intel Wi-Fi
+- Intel Wi-Fi including using the AirportItlwm to load IO80211Family
 - USB tethering from Android phone for Wi-Fi service
 - Synaptics Clickpad (with working Trackpad gestures)
 - Realtek RTS522A PCIe Card Reader (a little buggy but works okay)
-- Bluetooth
+- Bluetooth including the Bluetooth switch
 - HP Wide Vision webcam
 - Start/Shutdown/Restart
 - Sleep/Wake (including close/open on lid)
@@ -39,8 +41,8 @@ Drives: Plextor M8Pe(G) 256GB NVMe, Hitachi HGST Travelstar 1TB HDD
 - Sensors for CPU, drives and battery including temperature monitoring.
 - Brightness function keys
 - High DPI settings for large text display
-- Catalina/Mojave upgrades (all work fine so far)
-- Booting from grub2 by chain loading Clover
+- Big Sur/Catalina/Mojave upgrades (all work fine so far)
+- Booting from grub2 by chain loading Clover and/or OpenCore
 - Read/write access to NTFS (Windows) partitions using NTFS-3G (free) or a commercial product.
 - Linux read access to APFS partitions using apfs-fuse
 
@@ -61,7 +63,7 @@ Drives: Plextor M8Pe(G) 256GB NVMe, Hitachi HGST Travelstar 1TB HDD
 
 ### What's not yet tested
 
-- Apple software such as iMessage, iCloud, etc (I’m not an Apple user).
+- Apple service software such as iMessage, iCloud, etc (I’m not an Apple user).
 
 
 
@@ -86,12 +88,12 @@ If you don't know how to backup and restore images of your partitions, I strongl
 
 
 
-During this process, I made a new image of my EFI (boot partition) and APFS (macOS partition) upon every milestone I achieved. I restored to the last "clean" milestone after any experimenting and kept multiple copies of the Clover folder when trying out various Clover configurations. At the very least you should:
+During this process, I made a new image of my EFI (boot partition) and APFS (macOS partition) upon every milestone I achieved. I restored to the last "clean" milestone after any experimenting and kept multiple copies of the Clover folder and OpenCore folder when trying out various bootloader configurations. At the very least you should:
 
 - Backup and restore all important partitions to external media.
 - Be able to boot from an external device (e.g. USB) to recover your system.
 - Be able restore your entire system from external media if necessary.
-- Maintain backups of your Clover folder and your APFS partition(s) for every milestone achieved.
+- Maintain backups of your Clover/OC folders and your APFS partition(s) for every milestone achieved.
 - Restore to the last milestone when needed or if your current installation is too "messed up".
 - Make sure you have a backup before trying a macOS upgrade.
 - Be able to create, delete, move and resize partitions when needed.
@@ -100,7 +102,7 @@ During this process, I made a new image of my EFI (boot partition) and APFS (mac
 
 ### Preparation (for beginners)
 
-The macOS installation media consists of two parts. Firstly, a Clover installation which usually consists of **Clover** (boot manager software) being installed on an EFI partition such as one on a USB stick. Secondly, a separate HFS+ (macOS extended) partition which contains the native macOS installation files for the version of macOS required - this can also be put on the same USB stick.
+The macOS installation media consists of two parts. Firstly, a Clover or OpenCore installation which usually consists of **Clover** or **OpenCore** (boot manager software) being installed on an EFI partition such as one on a USB stick. Secondly, a separate HFS+ (macOS extended) partition which contains the native macOS installation files for the version of macOS required - this can also be put on the same USB stick.
 
 
 
@@ -108,8 +110,10 @@ The easiest way to set up installation media is to use a USB 2.0 stick (USB 3.0 
 
 1. Make sure the USB is formatted with a GPT partition table (not MBR).
 2. Install ***Clover*** to the USB stick (use default UEFI settings): https://github.com/CloverHackyColor/CloverBootloader/releases .
-3. Use **Clover Configurator** to adjust any config.plist settings in the USB stick's EFI Clover in order to allow your machine to run a macOS installation (see below for my initial Clover Configuration).
-4. Download all needed kexts and drivers and copy to the USB stick's EFI Clover folders (see below).
+3. Use **Clover Configurator** to adjust any config.plist settings in the USB stick's EFI CLOVER folder in order to allow your machine to run a macOS installation (see below for my initial Clover Configuration).
+   OR
+   Use a plist editor such as **ProperTree** to adjust any config.plist settings in the USB stick's EFI OC in order to allow your machine to run a macOS installation (see below for my initial Clover Configuration).
+4. Download all needed kexts and drivers and copy to the USB stick's EFI CLOVER or OC folders (see below).
 5. Add a partition to the USB stick with the desired macOS installation.
 
 As I didn't initially have access to macOS, I actually downloaded and installed a non-vanilla "Hackintosh" installation image which ran successfully. It was not a good set up, but at least I could use it to create a proper USB stick for installation. After that I ditched it. If you have access to a running macOS installation*, I recommend using this instead as it will be a lot less hassle and less prone to problems.
@@ -130,19 +134,39 @@ There are plenty of online resources that cover setting up a USB installation in
 
 ### Initial Clover Configuration for macOS Installation
 
-The default Clover configuration for UEFI installation doesn't work without two extra settings that needs to be added with **Clover Configurator** otherwise the macOS installer hangs. Make sure your USB EFI partition is mounted and open your Clover config file: /EFI/Clover/config.plist in ***Clover Configurator***. Add the following settings:
+If using CLOVER as the bootloader, the default Clover configuration for UEFI installation doesn't work without extra settings that needs to be added with **Clover Configurator** otherwise the macOS installer hangs. Make sure your USB EFI partition is mounted and open your Clover config file: /EFI/Clover/config.plist in ***Clover Configurator***. Add the following settings:
 
 ACPI > Patches (for DSDT): add the patch **change EC0 to EC** (click on the **List of Patches** button and choose it)
 
-Devices > USB > enable **Inject**
+ACPI > SSDT > Plugin Type checkbox: **checked**
 
-The following settings also made Clover easier to use:
+ACPI > AutoMerge and Fix Headers checkboxes: enabled (for SSDT patching)
 
-Boot > Arguments > add the boot argument **-v** from the right-click menu (verbose mode to view output for troubleshooting).
+
+
+Boot Graphics > UIScale textbook: **2** (keeps startup Apple logo large on startup which looks consistent when using HiDPI text)
+
+
+
+Devices > USB > Inject checkbox: **checked** (required to stop macOS startup hang)
+
+Devices > Audio > Inject combolist: **No** (not needed as audio patching will be used - see below).
+
+Devices > Properties button > Devices (with properties): I have two devices set up (audio and video), but you should leave this all blank as it will be filled in later by Hackintool when setting up video and audio patching (see below).
+
+Boot > Arguments > add the boot argument **-v** from the right-click menu (verbose mode to view output for troubleshooting). You can turn this off when set up is finished.
+
+Boot > Arguments > add the boot argument **alcdelay=2000**
 
 GUI > Screen Resolution: **1920x1080** (or your desired screen resolution in Clover)
 
 GUI > Mouse > Speed: **8** (in Clover***,\*** the USB mouse has a very slow pointer speed without this setting)
+
+Gui > Scan > Custom button: **selected** (I want to control the menu options in Clover)
+
+Gui > Scan > Entries checkbox: **checked** (to see the macOS/Windows partitions)
+
+Gui > Hide Volume List: **Win10Pro, bootmgfw.efi** (I don't Clover to show my Windows partitions as I use grub2, you can also add **Preboot** and/or **Recovery** if you want to hide these menu options).
 
 I don't use the Clover graphics settings for my video and CPU as WhateverGreen auto detects this (later I will use video patching anyway - see below). If you have trouble booting into the macOS installer, you can add these two Clover settings to see if it fixes the problem. You need to look up the correct values for your CPU and video device before adding them using **Clover Configurator**. My values are:
 
@@ -150,36 +174,158 @@ Devices > intelGFX textbox: **0x59168086** (for Kaby Lake with Intel HD) - I don
 
 Graphics > ig-platform-id textbox: **0x591b0000** (for Kaby Lake laptops with Intel HD 610 - 650) - I don't need this as it is auto detected.
 
-See below for my complete Clover Configuration settings which are not needed now (but can be used) for initial installation. If you have issues, you may wish to use my complete clover settings now rather than later (see below).
+Quirks > AvoidRuntimeDefrag: **on**
+
+Quirks > : EnableSafeModeSlide**on**
+
+Quirks > : EnableWritwUnprotector**on**
+
+Quirks > ProvideCustomSlide: **on**
+
+Quirks > SetupVirtualMap: **on**
+
+Quirks > FuzzyMatch: **on**
+
+Quirks > DisableIOMapper: **on**
+
+Quirks > : DisableLinkeditjettison: **on**
+
+Quirks > PowerTimeoutKernelPanic: **on**
+
+Quirks > XhciPortLimit: **on**
+
+Kernel and Kext Patches > Kernal LAPTIC: **on** (required for HP laptops. (In OpenCore this is called KernelLapic)
+
+Kernel and Kext Patches > PanicNoKextDump: **on**
+
+RT Variables > CSRActiveConfig: **0x67** (disables SIP - this can be set to **0x00** to enable SIP when all set up is finished, but most users leave it disabled as it may interfere with upgrades and kext updates.
 
 
 
-### Clover Kexts
+Note that some quirks in Clover Configurator have alternative names in OpenCore as follows:
 
-The following Kext Files (latest versions recommended) need to be downloaded and copied to Clover in the USB EFI Clover folder /EFI/Clover/Kexts/Other
+| **OpenCore**       | **Clover**                                 | On/Off |
+| ------------------ | ------------------------------------------ | ------ |
+| AppleCpuPmCfgLock  | Kernel and Kext patches > AppleIntelCPUPM< | off    |
+| AppleXcpmCfgLock   | Kernel and Kext patches > KernelPm         | on     |
+| DisableRtcChecksum | Kernel and Kext patches >  AppleRTC        | off    |
+| LapicKernelPanic   | Kernel and Kext patches > KernelLapic      | on     |
 
-- FakeSMC.kext OR VirtualSMC.kext (to fake a Mac)
+
+
+I set this to **MacBookPro 14,3** (mobile should be **checked)** as this closely resembles the specs of this machine - particularly the CPU.
+
+
+
+### Initial OpenCore Configuration for macOS Installation
+
+Follow the OpenCore installation guide for a **Kaby Lake Laptop** (not Desktop).
+
+https://dortania.github.io/OpenCore-Install-Guide/
+
+ The settings will be the same as in the guide. The video is **0x59168086**. Use the specific HP Settings for LapicKernelPanic (set to on) and UnblockFsConnect (set to off).
+
+In the boot-args, use **-v** for verbose mode. You can turn this off when setup is finished.
+
+In the boot-args, use **alcid=13 alcdelay=2000** to make sure the audio activates in macOS.
+
+I set the SMBIOS to **MacBookPro 14,3**as this closely resembles the specs of this machine - particularly the CPU.
+
+
+
+### Kexts for Clover or OpenCore
+
+The following Kext Files (latest versions recommended) need to be downloaded and copied to
+
+Clover in the USB EFI Clover folder /EFI/CLOVER/Kexts/Other
+
+​		OR
+
+ OpenCore in the USB EFI OC folder /EFI/OC/Kexts
+
+
+
+
+
+The essential kexts (to boot) are:
+
+- VirtualSMC.kext (to fake a Mac)
 - Lilu.kext (patcher)
-- RealtekRTL8111.kext (ethernet network)
 - USBInjectAll.kext (USB)
 - VoodooPS2Controller.kext (mouse and touchpad)
-- VoodooInput.kext (mouse and touchpad)
-- AppleALC.kext (audio)
 - WhateverGreen.kext (video)
-- itlwm.kext (Intel Wi-Fi)
 
 
 
-The file SSDT-PNLF.aml from the WhateverGreen.kext repository/download should be copied into the USB EFI Clover folder /EFI/Clover/ACPI/patched .
+
+
+The nonessential kexts are:
+
+- ACPIBatteryManager.kext (for battery status and touchpad)
+
+- AppleALC.kext (audio)
+
+- RealtekRTL8111.kext (ethernet network)
+
+- AirportItlwm.kext (wifi network)
+
+- CodecCommander.kext (for Realtek ACL295 audio plug and static fix)
+
+- HoRNDIS.kext (for USB tethering)
+
+- IntelBluetoothFirmware.kext (for bluetooth functions)
+
+- IntelBluetoothInjector.kext (for bluetooth functions)
+
+- Sinetek-rtsx.kext (for card reader)
+
+- SMCBatteryManager.kext (part of VirtualSMC for sensors)
+
+- SMCDellSensors.kext (part of VirtualSMC for sensors)
+
+- SMCSuperIO.kext (part of VirtualSMC for sensors)
+
+  
 
 
 
-All the Clover drivers should already be present, but check that they are in the USB EFI Clover folder /EFI/Clover/drivers/UEFI:
+The file SSDT-PNLF.aml from the WhateverGreen.kext repository/download should be copied into the USB EFI Clover folder /EFI/CLOVER/ACPI/patched or OpenCore USB folder /EFI/OC/ACPI .
+
+
+
+For Clover, check that all the Clover drivers are present in the USB EFI Clover folder /EFI/CLOVER/drivers/UEFI:
 
 - APFSDriverLoader.efi (to read Apple’s APFS partitions)
-- AptioMemorytFix.efi
+- OpenRuntime.efi (to use OpenCore features)
 - HFSPlus.efi (to read Apple’s HFS+ partitions)
-- SMCHelper.efi (using FakeSMC.kext) OR VirtualSmc.efi (using VirtualSMC.kext)
+- VirtualSmc.efi (using VirtualSMC.kext)
+
+
+
+For OpenCore, check that all the Clover drivers are present in the USB EFI OpenCore folder /EFI/OC/Drivers:
+
+- OpenRuntime.efi
+- HFSPlus.efi (to read Apple’s HFS+ partitions)
+
+
+
+### ACPI Files for Clover or OpenCore
+
+The ACPI files from this repository can be used in Clover or OpenCore. See the "ACPI and DSDT Patches" folder in this repository for relevant files.
+
+For Clover, copy the files to Clover USB folder /EFI/CLOVER/ACPI/patched.
+
+For OpenCore, copy the files to OpenCore USB folder /EFI/OC/ACPI.
+
+The files are:
+
+- SSDT-EC.aml
+- SSDT-PNLF.aml (this comes from WhateverGreen.kext)
+- SSDT-UIAC.aml (for USB mappings)
+
+Note I have also patched my DSDT with two patches: brightness keys and battery patch. The patch coding is in "DSDT-Battery-Patch.txt" and "DSDT-Brightness-Keys-Patch.txt" . My DSDT.aml file for my patched DSDT is also in the folder. It is not recommened to use another machines DSDT. You can run Clover and OpenCore without the DSDT patched file.
+
+To patch your DSDT  file to allow the brightness keys and battery patch, you can dump (generate) your own DSDT file and patch it using the txt files for the brightness keys and battery patch (see the DSDT patching section below).
 
 
 
@@ -187,11 +333,13 @@ All the Clover drivers should already be present, but check that they are in the
 
 macOS installation doesn't need Internet access during installation. To have network access on the target machine, you can do one of the following:
 
-- Use the Intel Wi-Fi. The itlwm.kext allows macOS to use Wi-Fi. The macOS application https://github.com/OpenIntelWireless/HeliPort can be used to connect to a Wi-Fi service. Install and run this program. Set it to run at login to have it available with automatic connection (**System Preferences** > **Users & Groups** > **Login Items**).
+- Use the Intel Wi-Fi with the AirportItlwm.kext. This allows macOS to use Wi-Fi simulating native Apple Wi-Fi services.  You can rename the service to "Intel Wi-Fi" in **System Preferences** > **Network** as it might appear as eth2 or eth3). The HeliPort app is not required (see next option).
+
+- Use the Intel Wi-Fi with the itlwm.kext. This allows macOS to use Wi-Fi simulating an ethernet card. The macOS application https://github.com/OpenIntelWireless/HeliPort can be used to connect to a Wi-Fi service. Install and run this program. Set it to run at login to have it available with automatic connection (**System Preferences** > **Users & Groups** > **Login Items**). You can rename the service to "Intel Wi-Fi" in **System Preferences** > **Network** as it might appear as eth2 or eth3)
 
 - Use ethernet. The RealtekRTL8111.kext (see above) allows ethernet network during and after macOS installation.
 
-- Use USB Wi-Fi tethering. The **HoRNDIS** app allows USB tethering from an Android phone for WiFi access, so you can download this app and have it ready to install on the target machine after installation. https://joshuawise.com/horndis#available_versions . If you need Internet access during macOS installation, you can even copy the HoRNDIS.kext file to the Clover folder /EFI/Clover/Kexts/Other and turn on USB tethering on the Android phone before starting the installation. In Catalina, the install script doesn't work, but has been modified to run. I have included it in the these files.
+- Use USB Wi-Fi tethering. The **HoRNDIS** app allows USB tethering from an Android phone for WiFi access, so you can download this app and have it ready to install on the target machine after installation. https://joshuawise.com/horndis#available_versions . If you need Internet access during macOS installation, you can even copy the HoRNDIS.kext file to the Clover folder /EFI/Clover/Kexts/Other and turn on USB tethering on the Android phone before starting the installation. In Catalina, the install script doesn't work, but has been modified to run. I have included it in this repository. You can rename the service to "USB Tethering" in **System Preferences** > **Network** as it might appear as eth2 or eth3)
 
   
 
@@ -201,30 +349,30 @@ macOS installation doesn't need Internet access during installation. To have net
 
 ### Installation of macOS (for beginners)
 
-To install macOS, boot up **Clover** from the USB stick and select the macOS installer partition in the Clover menu. Be aware the installation may appear to hang during parts of the installation but give each such occurrence at least 5 minutes before concluding it has hung. If you arrive at the initial GUI installation wizard/menu, then this usually indicates that your Clover set up is good enough for a successful installation. This is the place to run **Disk Utility** and reformat your prepared NTFS partition into APFS format. If you get errors here, you may have a bad macOS installer. Try a different version, or try creating an EFI partition on your partition's device if one is not present. Once you have successfully reformatted to APFS, close Disk Utility and you should be able to select your new partition as the target for installation within the install wizard. The installation will continue on with a number of reboots. The machine needs to boot from your USB stick upon each reboot.
+To install macOS, boot up **Clover** or **OpenCore** from the USB stick and select the macOS installer partition in the Clover menu. Be aware the installation may appear to hang during parts of the installation but give each such occurrence at least a few minutes before concluding it has hung. If you arrive at the initial GUI installation wizard/menu, then this usually indicates that your Clover set up is good enough for a successful installation. This is the place to run **Disk Utility** and reformat your prepared NTFS partition into APFS format. If you get errors here, you may have a bad macOS installer. Try a different version, or try creating an EFI partition on your partition's device if one is not present. Once you have successfully reformatted to APFS, close Disk Utility and you should be able to select your new partition as the target for installation within the install wizard. The installation will continue on with a number of reboots. The machine needs to boot from your USB stick upon each reboot.
 
-On each reboot (using the USB stick), Clover should run and pick the correct partition to continue the installation, but if you end up back at the initial GUI installation wizard, then reboot into Clover and manually select your new APFS partition from the Clover menu. Alongside (actually just before) your new partition, the Clover menu should also display two extra partitions: **Filevault Preboot for macOS** and **Recovery**. The preboot partition can be used instead of booting directly into your partition as desired. Later, if you encrypt your partition using **FileVault**, you must use this preboot partition to enter your password.
+On each reboot (using the USB stick), Clover or OC should run and pick the correct partition to continue the installation, but if you end up back at the initial GUI installation wizard, then reboot into Clover/OpenCore and manually select your new APFS partition from the menu. Alongside (actually just before) your new partition, the  menu should also display  extra partitions: Preboot for macOS** and **Recovery**. The preboot partition can be used instead of booting directly into your partition as desired. Later, if you encrypt your partition using **FileVault**, you must use this preboot partition to enter your password.
 
 
 
-### Setting Up Clover as the Primary Boot Manager (for beginners)
+### Setting Up Clover or OpenCore as the Primary Boot Manager (for beginners)
 
-Now that you have a working macOS installation (booted from the USB stick), you can install ***Clover\*** into your internal drive that you wish to boot from.
+Now that you have a working macOS installation (booted from the USB stick), you can install **Clover** or **OpenCore** into your internal drive that you wish to boot from.
 
-If your machine boots directly into Windows, you are probably using the Window's boot manager. Microsoft doesn't allow non-Microsoft systems to be booted from it, so you will need to use Clover or a third party boot manager such as **grub*** to boot both macOS and any other system(s) such a Windows or Linux.
+If your machine boots directly into Windows, you are probably using the Window's boot manager. Microsoft doesn't allow non-Microsoft systems to be booted from it, so you will need to use **Clover** /**OpenCore** or a third party boot manager such as **grub*** to boot both macOS and any other system(s) such a Windows or Linux.
 
 If your internal drive doesn't use a GPT partition table, it needs to be converted to GPT. If the EFI partition is less than 200 MB, you need to resize/move your adjacent partition(s) to make room and increase the EFI partition to 200 MB or more (I use 1 GB for my EFI partition). If you don't know what software to use, you can download **GParted** and create a USB boot drive to run it. This will do partition resizing, moving, etc (make sure you have image backups of your partitions first). If you need to create a new EFI partition on a drive, you can create a FAT32 partition with the bootflags **boot** and **esp** enabled. You can label it "EFI" for easy identification.
 
-If you wish to use **Clover** as your primary boot manager on your internal drive, do the following:
+If you wish to use **Clover** or **OpenCore** as your primary boot manager on your internal drive, do the following:
 
 1. Make sure your internal drive uses a GPT partition table.
 2. Make sure your internal drive has an EFI partition of 200 MB or more (see above).
-3. Test that you can boot into your other operating system(s) (e.g. Windows) using Clover's menu (from your USB stick).
+3. Test that you can boot into your other operating system(s) (e.g. Windows) using the Clover or OpenCore menu (from your USB stick).
 4. Boot into macOS using your USB stick.
-5. Run the **Clover** installer app and choose your internal drive to install to (i.e. choose a partition on this drive) and then install Clover.
+5. For **Clover**, run the installer app and choose your internal drive to install to (i.e. choose a partition on this drive) and then install Clover.
 6. Mount both your internal drive's EFI partition and your USB EFI partition (you can use **Clover Configurator** to mount these EFI partitions).
-7. Use **Finder** to delete the /EFI/Clover folder from your internal drive's EFI and replace it by copying the /EFI/Clover folder from the USB stick to this place. This means all the Clover settings from the USB stick will be copied over.
-8. Check that you can boot into Clover on the internal drive (i.e. without the USB stick). You may need to set this up in your BIOS settings.
+7. Use **Finder** to delete the /EFI/CLOVER or /EC/OC folder from your internal drive's EFI and replace it by copying the /EFI/CLOVER or /EC/OC folder from the USB stick to this place. This means all the Clover/OpenCore settings from the USB stick will be copied over.
+8. Check that you can boot into Clover/OpenCore on the internal drive (i.e. without the USB stick). You may need to set this up in your BIOS settings.
 
 
 
@@ -233,17 +381,32 @@ If you wish to use **Clover** as your primary boot manager on your internal driv
 Since I use Linux and Windows, I use **grub2** as my primary boot manager. If this is the case you don't need to install **Clover** on the drive. Just do the following:
 
 1. Check that your internal drive's EFI partition is 200 MB or more. If not, resize it (see previous section).
+
 2. Mount both your internal drive's EFI partition and your USB EFI partition (use Linux, macOS, Windows, whatever).
+
 3. Copy the /EFI/Clover folder from the USB's EFI partition to your internal drive's EFI partition.
+
 4. Add a **grub2** menu entry with the following script:
 
-echo "Starting macOS..."
+   
 
+echo "Starting macOS using Clover ..."
 savedefault
-
 search --fs-uuid --no-floppy --set=root [UUID]
-
 chainloader /EFI/clover/CLOVERX64.efi
+
+
+
+OR
+
+
+
+echo "Starting macOS using OpenCore ..."
+savedefault
+search --fs-uuid --no-floppy --set=root [UUID]
+chainloader /EFI/OC/Bootstrap/Bootstrap.efi
+
+
 
 
 
@@ -259,200 +422,11 @@ See section above concerning network access.
 
 
 
-### Complete Clover Setup
 
-I use a minimalist strategy for setting up my Clover configuration: I turn off all options unless they are necessary. The following are the options used for each Clover Configurator settings section (all other options are turned off/disabled). Make sure your EFI partition is mounted and open your Clover config file: /EFI/Clover/config.plist in **Clover Configurator**. Have only the following settings enabled (screenshots included):
 
+## Sensors
 
-
-#### ACPI
-
-ACPI > Patches (for DSDT) list: add the patch **change EC0 to EC** (click **List of Patches** button to add) (required to stop macOS startup hang)
-
-ACPI > SSDT > Plugin Type checkbox: **checked**
-
-ACPI > AutoMerge and Fix Headers checkboxes: enabled (for SSDT patching)
-
-
-
-#### Boot
-
-Boot > Default Boot Volume combolist: **Last Booted Volume** (default setting)
-
-
-
-#### Boot Graphics
-
-Boot Graphics > UIScale textbook: **2** (keeps startup Apple logo large on startup which looks consistent when using HiDPI text)
-
-
-
-#### CPU
-
-[nothing set]
-
-
-
-#### Devices
-
-Devices > USB > Inject checkbox: **checked** (required to stop macOS startup hang)
-
-Devices > Audio > Inject combolist: **No** (not needed as audio patching will be used - see below).
-
-Devices > Properties button > Devices (with properties): I have two devices set up (audio and video), but you should leave this all blank as it will be filled in later by Hackintool when setting up video and audio patching (see below).
-
-
-
-#### Disable Drivers
-
-[nothing set]
-
-
-
-#### Gui
-
-Gui > Scan > Custom button: **selected** (I want to control the menu options in Clover)
-
-Gui > Scan > Entries checkbox: **checked** (to see the macOS/Windows partitions)
-
-Gui > Hide Volume List: **Win10Pro, bootmgfw.efi** (I don't Clover to show my Windows partitions as I use grub2, you can also add **Preboot** and/or **Recovery** if you want to hide these menu options).
-
-
-
-#### Graphics
-
-[nothing set]
-
-
-
-#### Kernel and Kext Patches
-
-Kernel and Kext Patches > Kernel LAPIC checkbox: **checked** (recommended for HP laptops)
-
-
-
-#### RT Variables
-
-RT Variables > BooterConfig textbox: **0x28** (default)
-
-RT Variables > CSRActiveConfig: **0x67** (disables SIP - this can be set to **0x00** to enable SIP when all set up is finished, but most users leave it disabled as it may interfere with upgrades and kext updates.
-
-
-
-#### SMBIOS
-
-I set this to **MacBookPro 14,3** (mobile should be **checked)** as this closely resembles the specs of this machine - particularly the CPU.
-
-
-
-#### System Parameters
-
-System Parameters > Inject Texts Combolist: **Detect** (default setting)
-
-
-
-
-
-#### Save and Reboot
-
-Save the file and reboot for settings to take effect.
-
-
-
-
-
-### Installing Kexts (for beginners)
-
-If a kext is "as is" and doesn't come with an installer, I recommend using the **Hackintool** app to install it (**Kext Wizard** and **Kext Installer** apps are outdated).
-
-To install one or more kexts, do the following:
-
-1. Mount the partition that the kexts are located in (mount the EFI partition if installing from /EFI/Clover/kexts/other folder).
-2. Open the **Hackintool** app.
-3. At the top in the toolbar, click the tool-button called **Tools** .
-4. At the bottom, click the house icon called **Disable gatekeeper...**
-5. At the bottom, click the left lego-block icon called Install Kext(s)
-6. Select the kexts to install - multiple kexts may be selected in the folder.
-
-Hackintool will copy the kexts to /L/E, automatically rebuild the cache, repair permissions and display a log. There will be a list of kexts with an "invalid signature" - this is expected.
-
-
-
-I follow the recommendation of installing all texts from Clover (/EFI/Clover/kexts/other folder) into macOS. This includes:
-
-- FakeSMC.kext OR VirtualSMC.kext
-- Lilu.kext
-- RealtekRTL8111.kext
-- USBInjectAll.kext
-- VoodooPS2Controller.kext
-- VoodooInput.kext
-- WhateverGreen.kext
-- AppleALC.kext
-- itlwm.kext
-
-I don't put any other kexts into Clover unless needed for booting macOS. Also install all of these kexts into macOS using **Hackintool**.
-
-
-
-I install all other kexts into macOS (not **Clover**) using **Hackintool**. This includes:
-
-- ACPIBatterManager.kext (battery and to allow touchpad gestures)
-- Sinetek-rtsx.kext (card reader)
-- CodeCommander.kext (needed for audio plug fix)
-
-
-
-### Uninstalling Kexts (for beginners)
-
-If a kext is "as is" and doesn't come with an uninstaller, I recommend **Finder** and **Hackintool** to uninstall it:
-
-1. Open **Finder** app.
-2. If you don't have your machine displayed in the sidebar under locations, you can show this with Finder's Preferences menu option.
-3. Go to the folder in [your machine]/[your macOS partition]/Library/Extensions
-4. Delete the desired kext(s).
-5. Open **Hackintool** app.
-6. At the top in the toolbar, click the tool-button called **Tools** .
-7. At the bottom, click the house icon called **Disable gatekeeper...**
-8. At the bottom, click the right lego-block icon called **Rebuilt KextCache and Repair Permissions**
-
-
-
-### Sensor Kexts
-
-To enable sensors, install the FakeSMC sensor kexts OR Virtual SMC sensor kexts into macOS as follows:
-
-
-
-Fake SMC kexts:
-
-- FakeSMC.kext
-- FakeSMC_ACPISensors.kext
-- FakeSMC_CPUSensors.kext
-- FakeSMC_GPUSensors.kext
-- FakeSMC_LPCSensors.kext
-- FakeSMC_SMMSensors.kext
-
-
-
-Virutal SMC kexts*:
-
-- SMCLightSensor.kext
-- SMCProcessor.kext
-- SMCSuperIO.kext
-- VirtualSMC.kext
-
-\* Note that for VirtualSMC, the SMCBatteryManager.kext is not listed. On my machine, this kext slows down macOS startup and doesn’t add any new sensor functionailty.
-
-
-
-If switching from FakeSMC to VirtualSMC or visa-versa, do the following:
-
-1. Replace the main SMC kext in the Clover folder /EFI/Clover/kexts/Other (see Clover Setup)
-2. Replace the SMC .efi driver in the Clover folder /EFI/Clover/drivers/UEFI
-3. Uninstall the main SMC kext and sensor kexts in macOS.
-4. Install the new main SMC kext and sensor kexts in macOS.
-
-
+Make sure VirtualSMC and the bundled sensor kexts are installed in Clover or OpenCore.
 
 Install the **HWMonitor** app to view and monitor sensors. In the app's preferences you can set it to be started at login.
 
@@ -460,24 +434,7 @@ Install the **HWMonitor** app to view and monitor sensors. In the app's preferen
 
 ### HiDPI Text (for beginners)
 
-To allow HiDPI text, do the following:
-
-1. Download xzhih's [**one-key-hidpi**](https://github.com/xzhih/one-key-hidpi).
-2. Open a **Terminal** in the Downloads/one-key-hidpi-master folder and run: [ICODE]sh hidpi.sh[/ICODE]
-3. In the Terminal window, select **(1) Enable HIDPI**, then select **(5) Remain as is**, then select (3) **Manual Input resolution**, then enter **1920x1080**.
-4. Reboot as instructed.
-5. In System Preferences > Display, set the Resolution to **Scaled**
-6. Install the app **RDM http://avi.alkalay.net/software/RDM/** (Retina Display Manager) and run it.
-7. The RDM app icon will appear at the top. Select a resolution as desired. The resolutions marked with a flash symbol indicate resolutions which will have clear text due to being harmonious with the actual display resolution.
-8. Th RDM app can be set to run at login using **System Preferences** > **Users & Groups** > **Login Items**
-
-
-
-To make the Apple logo large right from the start (for consistency), do the following:
-
-1. Mount your EFI Partition (can be done with the ***Clover Configurator*** app)
-2. Open your Clover config file: /EFI/Clover/config.plist in **Clover Configurator** and set Boot Graphics > UIScale textbook: **2**
-3. Save file and reboot
+For displays with Hi DPI, such as 1920x1080 (full HD) and higher, the screen fonts, icons and windows may look too small. This can be fixed using Hi DPI settings. See the folder Hi DPI in this reposory and read the readme.txt file to set up Hi DPI display in macOS.
 
 
 
@@ -764,40 +721,24 @@ The Realtek ALC295 has two issues (which can both be fixed):
 - Audio input doesn't switch from **Internal Microphone** to **Line In** when plugging in a headset with a mic.
 - The audio has static noise in the left earphone
 
-The mic switching problem can be fixed by modifying the **Audio Plug Fix** to work with the Realtek ALC295.
+Both problems can be fixed using the **Audio Plug Fix** to work with the Realtek ALC295.
+
+See the "ALC Plug Fix for Realtek ALC295" folder in this repository. The readme.txt file contains instructions.
 
 
-
-The static noise problem also occurs in Linux and I have posted a fix which can be used in Linux until it is incorporated into the Linux kernel. The same fix can be used in macOS. It involves executing the **hda-verb** command upon startup and wake up. Since the Audio Plug Fix also uses the **hda-verb** command and runs upon start up and wake up, it is very convenient to simply incorporate the static noise fix into the ***Audio Plug Fix\****. I have done so and the compiled fix is available in the zip file. Please note it is best practice to take the original source (which may have updates), do the modifications and recompile. The readme.txt file I have created in the zip provides instructions to do all this.
-
-
-
-To install my compilation of the **Audio Plug Fix** which includes the static noise fix, do the following:
-
-1. Make sure CodeCommander.kext is installed in macOS.
-2. Test that **hda-verb** is working as follows: in the folder ALCPlugFixforRealtekACL2915/alc_fix , run the program **hda-verb** by double-clicking on it in **Finder**. Give it permissions if needed and make sure it runs in a **Terminal**. It should report "[Process completed]". The window can be closed.
-3. Test that **ALCPlugFix** is detecting plugging/unplugging as follows: in the folder ALCPlugFixforRealtekACL2915/alc_fix , run the program **ALCPlugFix** by double-clicking on it in **Finder** It should display a **Terminal**. Every time you plug/unplug a headset, it should respond to a plugging/unplugging event with text output "Audio device changed!" and "Fixing...". The window can be closed.
-4. Install as follows: open a **Terminal** in the ALCPlugFixforRealtekACL295/alc_fix folder and run the command sh install.sh (password required). This will install the program to run as a background process which will run at start up.
-5. In **System Preferences** > **Sound** > **Input**, check that plugging/unplugging a headset switches between **Internal Microphone** and **Line In**. Adjust the Line In **input volume**. On my machine, with my headsets, it needs to be at around 95%.
-
-  \* The actual **hda-verb** commands that are run are as follows:
-
-hda-verb 0x19 SET_PIN_WIDGET_CONTROL 0x24
-
-hda-verb 0x20 SET_COEF_INDEX 0x67
-
-hda-verb 0x20 SET_PROC_COEF 0x3000
 
 
 
 ### Realtek RTS522A PCIe Card Reader
 
-There is a card reader kext called Sinetek-rtsx.kext which is in early development. If you have issues, you can use a USB card reader. I have tested one, and it works without any problems.
+There is a card reader kext called Sinetek-rtsx.kext which is in early development. At the moment the latest version is 2.3 which works with the internal Realtek RTS522A PCIe Card Reader.
 
-To work with my card I need to change the kext's Info.plist file to have the IOPCIMatch value set to **0x522A10EC**. However, neither the source build nor my own refresh build from the source using Xcode worked on my machine. Installing the kext causes a reboot and subsequent reboots on logon. I found a build that contains what seems to be the same kext, but it works on machine (I don't know what the difference is).
+If you have issues, you can use a USB card reader. I have tested one, and it works without any problems.
 
-You can download it and change the value as described above or use my copy.
 
-When installed, there is no mention of the card reader in System Report - hardware, but I can see the kext present in System Report - Software - Extensions. Disk Utility shows the device as an external device called "RTSX SD Card Reader Media Media"
 
-Using it between Windows and macOS works fine. I can reformat in Windows or macOS with no issues. Copying files, etc works fine. However I have found some problems. If I mount my SD card in Linux, macOS can't read it. If I subsequently mount the SD card in Windows and then try macOS it struggles - I then "force eject" the card and remount it and it all works fine.
+### NTFS Volume Read-Write Access
+
+If you don't want to use commercial software to write to NTFS volumes, you can use the free open source package NTFS-3G. See the folder "NTFS-3G Setup" in this repository. The readme.txt file contains instructions.
+
+
