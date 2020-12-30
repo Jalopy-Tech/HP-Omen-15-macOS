@@ -46,7 +46,7 @@ Drives: Plextor M8Pe(G) 256GB NVMe, Hitachi HGST Travelstar 1TB HDD
 - Read/write access to NTFS (Windows) partitions using NTFS-3G (free) or a commercial product.
 - Linux read access to APFS partitions using apfs-fuse
 
-\* The Plextor NVMe drive is accessible with Clover and is supported by Catalina and Mojave. High Sierra doesn’t have native support. There is a High Sierra patch for Plextor drives: I don’t know if it works with this model as I haven't tried it.
+\* The Plextor NVMe drive is accessible with Clover and is supported by Mojave and above. High Sierra doesn’t have native support. There is a High Sierra patch for Plextor drives: I don’t know if it works with this model as I haven't tried it.
 
 
 
@@ -293,7 +293,7 @@ The file SSDT-PNLF.aml from the WhateverGreen.kext repository/download should be
 
 
 
-For Clover, check that all the Clover drivers are present in the USB EFI Clover folder /EFI/CLOVER/drivers/UEFI:
+For Clover, check that all the drivers are present in the USB EFI Clover folder /EFI/CLOVER/drivers/UEFI:
 
 - APFSDriverLoader.efi (to read Apple’s APFS partitions)
 - OpenRuntime.efi (to use OpenCore features)
@@ -302,7 +302,7 @@ For Clover, check that all the Clover drivers are present in the USB EFI Clover 
 
 
 
-For OpenCore, check that all the Clover drivers are present in the USB EFI OpenCore folder /EFI/OC/Drivers:
+For OpenCore, check that all the drivers are present in the USB EFI OpenCore folder /EFI/OC/Drivers:
 
 - OpenRuntime.efi
 - HFSPlus.efi (to read Apple’s HFS+ partitions)
@@ -323,7 +323,7 @@ The files are:
 - SSDT-PNLF.aml (this comes from WhateverGreen.kext)
 - SSDT-UIAC.aml (for USB mappings)
 
-Note I have also patched my DSDT with two patches: brightness keys and battery patch. The patch coding is in "DSDT-Battery-Patch.txt" and "DSDT-Brightness-Keys-Patch.txt" . My DSDT.aml file for my patched DSDT is also in the folder. It is not recommened to use another machines DSDT. You can run Clover and OpenCore without the DSDT patched file.
+Note I have also patched my DSDT with two patches: brightness keys and battery patch. The patch coding is in "DSDT-Battery-Patch.txt" and "DSDT-Brightness-Keys-Patch.txt" . My DSDT.aml file for my patched DSDT is also in the folder. It is recommended that you generate your own machine's DSDT file and patch it to compile your own DSDT.aml  rather than use one from my machine, so I don't recommend you use mine. You can run Clover and OpenCore without the DSDT patched file.
 
 To patch your DSDT  file to allow the brightness keys and battery patch, you can dump (generate) your own DSDT file and patch it using the txt files for the brightness keys and battery patch (see the DSDT patching section below).
 
@@ -337,9 +337,9 @@ macOS installation doesn't need Internet access during installation. To have net
 
 - Use the Intel Wi-Fi with the itlwm.kext. This allows macOS to use Wi-Fi simulating an ethernet card. The macOS application https://github.com/OpenIntelWireless/HeliPort can be used to connect to a Wi-Fi service. Install and run this program. Set it to run at login to have it available with automatic connection (**System Preferences** > **Users & Groups** > **Login Items**). You can rename the service to "Intel Wi-Fi" in **System Preferences** > **Network** as it might appear as eth2 or eth3)
 
-- Use ethernet. The RealtekRTL8111.kext (see above) allows ethernet network during and after macOS installation.
+- Use ethernet. The RealtekRTL8111.kext (see above) allows ethernet network during and after macOS installation. This will work during macOS installation if needed.
 
-- Use USB Wi-Fi tethering. The **HoRNDIS** app allows USB tethering from an Android phone for WiFi access, so you can download this app and have it ready to install on the target machine after installation. https://joshuawise.com/horndis#available_versions . If you need Internet access during macOS installation, you can even copy the HoRNDIS.kext file to the Clover folder /EFI/Clover/Kexts/Other and turn on USB tethering on the Android phone before starting the installation. In Catalina, the install script doesn't work, but has been modified to run. I have included it in this repository. You can rename the service to "USB Tethering" in **System Preferences** > **Network** as it might appear as eth2 or eth3)
+- Use USB Wi-Fi tethering. The **HoRNDIS** app allows USB tethering from an Android phone for WiFi access, so you can download this app and have it ready to install on the target machine after installation. https://joshuawise.com/horndis#available_versions . If you need Internet access during macOS installation, you can even copy the HoRNDIS.kext file to the Clover folder /EFI/Clover/Kexts/Other and turn on USB tethering on the Android phone before starting the installation. In Catalina, the install script doesn't work, but has been modified to run. I have included it in this repository. You can rename the service to "USB Tethering" in **System Preferences** > **Network** as it might appear as eth2 or eth3).  This will work during macOS installation if needed.
 
   
 
