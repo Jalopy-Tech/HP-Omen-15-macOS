@@ -109,11 +109,23 @@ The macOS installation media consists of two parts. Firstly, a Clover or OpenCor
 The easiest way to set up installation media is to use a USB 2.0 stick (USB 3.0 may not be initially recognized in macOS on your target machine). You need to access a machine with a working macOS* and do the following:
 
 1. Make sure the USB is formatted with a GPT partition table (not MBR).
-2. Install ***Clover*** to the USB stick (use default UEFI settings): https://github.com/CloverHackyColor/CloverBootloader/releases .
-3. Use **Clover Configurator** to adjust any config.plist settings in the USB stick's EFI CLOVER folder in order to allow your machine to run a macOS installation (see below for my initial Clover Configuration).
+
+2. For **Clover** download the app https://github.com/CloverHackyColor/CloverBootloader/releases . This app will install Clover to a USB stick (use default UEFI settings).
+
    OR
+
+   For **OpenCore**, follow the guide to create a bootable USB stick.
+
+   https://dortania.github.io/OpenCore-Install-Guide/
+
+3. Use **Clover Configurator** to adjust any config.plist settings in the USB stick's EFI CLOVER folder in order to allow your machine to run a macOS installation (see below for my initial Clover Configuration).
+   
+   OR
+   
    Use a plist editor such as **ProperTree** to adjust any config.plist settings in the USB stick's EFI OC in order to allow your machine to run a macOS installation (see below for my initial Clover Configuration).
+   
 4. Download all needed kexts and drivers and copy to the USB stick's EFI CLOVER or OC folders (see below).
+
 5. Add a partition to the USB stick with the desired macOS installation.
 
 As I didn't initially have access to macOS, I actually downloaded and installed a non-vanilla "Hackintosh" installation image which ran successfully. It was not a good set up, but at least I could use it to create a proper USB stick for installation. After that I ditched it. If you have access to a running macOS installation*, I recommend using this instead as it will be a lot less hassle and less prone to problems.
