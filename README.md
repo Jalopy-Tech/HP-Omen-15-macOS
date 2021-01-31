@@ -18,7 +18,7 @@ Drives: Plextor M8Pe(G) 256GB NVMe, Hitachi HGST Travelstar 1TB HDD
 
 ### What works
 
-- macOS Big Sur 11.1; Catalina  10.15.17 and all previous versions; Mojave 10.14.6; High Sierra 10.13.6
+- macOS Big Sur 11.1; Catalina  10.15.x ; Mojave 10.14.x; High Sierra 10.13.6
 - Using Clover as the bootloader
 - Using OpenCore as the bootloader
 - Intel HD Graphics 630
@@ -26,7 +26,8 @@ Drives: Plextor M8Pe(G) 256GB NVMe, Hitachi HGST Travelstar 1TB HDD
 - USB3 and USB2 ports
 - Realtek ALC295 audio including speakers, headphones, internal mic, headset mic.
 - Fix for ALC295 issue of static noise in left earphone
-- Fix for mic switching when plugging/unplugging a headset
+- Fix for ALC295 mic switching when plugging/unplugging a headset
+- Fix for ALC295 when rebooting from Windows - no sound from speakers and no mic response.
 - Volume function keys
 - Realtek 8111 PCIe Ethernet
 - Intel Wi-Fi including using the AirportItlwm to load IO80211Family
@@ -36,15 +37,14 @@ Drives: Plextor M8Pe(G) 256GB NVMe, Hitachi HGST Travelstar 1TB HDD
 - Bluetooth including the Bluetooth switch
 - HP Wide Vision webcam
 - Start/Shutdown/Restart
-- Sleep/Wake (including close/open on lid)
+- Sleep/Wake (including close/open on lid) [only works with Clover at the moment]
 - Battery Meter
 - Sensors for CPU, drives and battery including temperature monitoring.
 - Brightness function keys
 - High DPI settings for large text display
 - Big Sur/Catalina/Mojave upgrades (all work fine so far)
 - Booting from grub2 by chain loading Clover and/or OpenCore
-- Read/write access to NTFS (Windows) partitions using NTFS-3G (free) or a commercial product.
-- Linux read access to APFS partitions using apfs-fuse
+- NTFS (Windows partitions) read/write access and automatic mounting (as read/write) using NTFS-3G.
 
 \* The Plextor NVMe drive is accessible with Clover and is supported by Mojave and above. High Sierra doesn’t have native support. There is a High Sierra patch for Plextor drives: I don’t know if it works with this model as I haven't tried it.
 
@@ -54,6 +54,7 @@ Drives: Plextor M8Pe(G) 256GB NVMe, Hitachi HGST Travelstar 1TB HDD
 
 - Nvidia GeForce GTX 1050 “switchable” graphics (currently not supported*)
 - HDMI port (currently not supported*)
+- Sleep/Wake when using OpenCore (I currently used Clover for normal operation)
 
 
 
@@ -728,12 +729,13 @@ Unfortunately, the machine wakes if there is any plugging/unplugging of a USB de
 
 ### Realtek ALC295 Audio Fixes
 
-The Realtek ALC295 has two issues (which can both be fixed):
+The Realtek ALC295 has three issues (which can all be fixed):
 
 - Audio input doesn't switch from **Internal Microphone** to **Line In** when plugging in a headset with a mic.
 - The audio has static noise in the left earphone
+- When rebooting from Windows, the internal speakers don't work and mic is not responsive.
 
-Both problems can be fixed using the **Audio Plug Fix** to work with the Realtek ALC295.
+All problems can be fixed using this modified **Audio Plug Fix** .
 
 See the "ALC Plug Fix for Realtek ALC295" folder in this repository. The readme.txt file contains instructions.
 
