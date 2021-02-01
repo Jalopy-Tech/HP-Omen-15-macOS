@@ -729,15 +729,7 @@ Unfortunately, the machine wakes if there is any plugging/unplugging of a USB de
 
 ### Realtek ALC295 Audio Fixes
 
-The Realtek ALC295 has three issues (which can all be fixed):
-
-- Audio input doesn't switch from **Internal Microphone** to **Line In** when plugging in a headset with a mic.
-- The audio has static noise in the left earphone
-- When rebooting from Windows, the internal speakers don't work and mic is not responsive.
-
-All problems can be fixed using this modified **Audio Plug Fix** .
-
-See the "ALC Plug Fix for Realtek ALC295" folder in this repository. The readme.txt file contains instructions.
+For issues and fixes, go to the [Realtek ALC295 Fixes](https://github.com/Jalopy-Tech/Realtek-ALC295-Fixes) repository.
 
 
 
@@ -754,5 +746,7 @@ If you have issues, you can use a USB card reader. I have tested one, and it wor
 ### NTFS Volume Read-Write Access
 
 If you don't want to use commercial software to write to NTFS volumes, you can use the free open source package NTFS-3G. See the folder "NTFS-3G Setup" in this repository. The readme.txt file contains instructions.
+
+This can be used to mount NTFS as read/write and have this automount on start up.
 
 
